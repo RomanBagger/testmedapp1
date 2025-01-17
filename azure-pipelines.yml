@@ -1,23 +1,20 @@
-# Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - main
-
-resources:
-- repo: self
 
 pool:
     name: 'Default'
     demands:
-        - agent.name -equals instance-20241203-145320
+        - agent.name -equals instance-20250115-185328
+
+variables:
+  IMAGE_TAG: $(Build.BuildId)  
 
 steps:
-
 - task: Docker@2
   inputs:
     containerRegistry: 'docker'
     repository: 'romanbeggar/frontend'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
+    tags: |
+      $(IMAGE_TAG)
