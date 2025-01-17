@@ -1,0 +1,38 @@
+trigger: none  
+
+pool:
+    name: 'Default'
+    demands:
+        - agent.name -equals instance-20250115-185328
+
+stages:
+- stage: Deploy
+  displayName: 'Deploy to Kubernetes with Helm'
+  jobs:
+  - job: HelmDeploy
+    displayName: 'Deploy Helm Chart'
+    steps:
+    - checkout: self
+
+    - task: HelmInstaller@1
+      inputs:
+        helmVersionToInstall: 'latest'
+
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download Image Tag'
+      inputs:
+        buildType: 'latest'
+        artifactName: 'image-tag'
+        targetPath: '$(Pipeline.Workspace)'
+
+    - script: |
+        IMAGE_TAG=$(cat $(Pipeline.Workspace)/image-tag)
+        echo "Deploying image with tag: $IMAGE_TAG"
+
+        helm upgrade --install frontapp ./HelmCharts/frontapp \
+          --namespace default \
+          --set image.repository=romanbeggar/frontend \
+          --set image.tag=$IMAGE_TAG \
+          --set service.type=ClusterIP
+
+      displayName: 'Helm Deploy'
