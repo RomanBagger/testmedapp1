@@ -16,5 +16,6 @@ steps:
     repository: 'romanbeggar/frontend'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
+    additionalOptions: '--sudo'
     tags: |
       $(IMAGE_TAG)
